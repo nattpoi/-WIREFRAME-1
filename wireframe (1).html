@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIREFRAME: เว็บแนะนำที่เที่ยวชลบุรี - Chonburi Travel Guide</title>
+
+    <!-- Google Fonts: Prompt (Thai Sans-Serif) & JetBrains Mono (Wireframe Specs) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Config for Custom Fonts -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* =========================================================
+           BASE WIREFRAME STYLES & BLUEPRINT BACKGROUND
+           ========================================================= */
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #E2E8F0;
+            background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #1E293B;
+            overflow-x: hidden;
+        }
+
+        /* Diagonal Cross Wireframe Image Placeholder [X] */
+        .wf-img-box {
+            position: relative;
+            background-color: #F1F5F9;
+            border: 1.5px solid #CBD5E1;
+            overflow: hidden;
+            background-image:
+                linear-gradient(to top right, transparent calc(50% - 1px), #CBD5E1 calc(50% - 0.5px), #CBD5E1 calc(50% + 0.5px), transparent calc(50% + 1px)),
+                linear-gradient(to bottom right, transparent calc(50% - 1px), #CBD5E1 calc(50% - 0.5px), #CBD5E1 calc(50% + 0.5px), transparent calc(50% + 1px));
+        }
+
+        .wf-img-label {
+            background: rgba(248, 250, 252, 0.92);
+            border: 1px dashed #94A3B8;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Dashed Wireframe Zone Container */
+        .wf-zone {
+            border: 1.5px dashed #CBD5E1;
+            position: relative;
+        }
+
+        /* Smooth Viewport Resizing Canvas */
+        #wireframe-canvas {
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.35s ease;
+        }
+
+        /* =========================================================
+           MOBILE VIEWPORT SIMULATION (390px) OVERRIDES
+           Ensures switching to "Mobile (390px)" collapses layout
+           even when viewing on a wide desktop screen.
+           ========================================================= */
+        #wireframe-canvas.is-mobile-view {
+            width: 390px !important;
+            max-width: 100% !important;
+            border-radius: 28px;
+            border: 8px solid #1E293B;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-desktop-nav {
+            display: none !important;
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-mobile-menu-btn {
+            display: flex !important;
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-grid-cards {
+            grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-map-split {
+            grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-footer-grid {
+            grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+            gap: 1.5rem !important;
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-hero-title {
+            font-size: 1.5rem !important;
+            line-height: 2rem !important;
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-section-pad {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-header-cta-text {
+            display: none !important;
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-trip-tabs {
+            flex-direction: column !important;
+        }
+
+        #wireframe-canvas.is-mobile-view .wf-annotation-card {
+            position: static !important;
+            margin-top: 0.75rem;
+            width: 100% !important;
+        }
+
+        /* =========================================================
+           UX ANNOTATIONS TOGGLE SYSTEM
+           ========================================================= */
+        .ux-annotation-badge,
+        .ux-annotation-panel {
+            display: none;
+        }
+
+        .show-annotations .ux-annotation-badge {
+            display: inline-flex;
+        }
+
+        .show-annotations .ux-annotation-panel {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .show-annotations .wf-zone {
+            border-color: #3B82F6;
+            background-color: rgba(239, 246, 255, 0.25);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar for Modals */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- =========================================================
+         TOP STICKY WIREFRAME TOOLBAR (DARK CONTROL BAR)
+         ========================================================= -->
+    <header class="sticky top-0 z-50 bg-slate-900 text-slate-100 border-b border-slate-700 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            <!-- Left: Wireframe Title & Spec Badge -->
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-600 flex items-center justify-center font-mono text-xs font-semibold text-blue-400">
+                    WF
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-base font-semibold tracking-tight leading-tight">
+                        WIREFRAME: เว็บแนะนำที่เที่ยวชลบุรี
+                    </h1>
+                    <p class="text-[11px] font-mono text-slate-400">
+                        Mid-Fidelity Interactive Prototype • Grid: 12-Col / Responsive
+                    </p>
+                </div>
+            </div>
+
+            <!-- Center: Viewport Switcher (Desktop vs Mobile) -->
+            <div class="flex items-center bg-slate-800 p-1 rounded-lg border border-slate-700" role="group" aria-label="Viewport Switcher">
+                <button id="btn-desktop" onclick="setViewport('desktop')"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all bg-slate-100 text-slate-900 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Desktop (1200px)</span>
+                </button>
+                <button id="btn-mobile" onclick="setViewport('mobile')"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all text-slate-300 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Mobile (390px)</span>
+                </button>
+            </div>
+
+            <!-- Right: Toggle UX Annotations -->
+            <div class="flex items-center gap-3">
+                <label class="inline-flex items-center cursor-pointer select-none gap-2.5 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-slate-500 transition">
+                    <span class="text-xs font-medium text-slate-200">แสดงหมายเหตุ UX (Annotations)</span>
+                    <div class="relative">
+                        <input type="checkbox" id="toggle-annotations" class="sr-only peer" onchange="toggleAnnotations(this.checked)">
+                        <div class="w-9 h-5 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <!-- =========================================================
+         WIREFRAME WORKSPACE CONTAINER
+         ========================================================= -->
+    <main class="flex-1 py-6 px-3 sm:px-6 flex justify-center items-start">
+        <!-- Main Resizable Wireframe Canvas -->
+        <div id="wireframe-canvas" class="w-full max-w-[1200px] bg-[#F8FAFC] border border-slate-300 rounded-2xl shadow-xl overflow-hidden">
+
+            <!-- Mobile Status Bar Indicator (Visible only in Mobile 390px mode) -->
+            <div id="mobile-notch" class="hidden bg-slate-900 text-white px-5 py-1.5 text-[11px] font-mono justify-between items-center">
+                <span>09:41</span>
+                <div class="w-16 h-3.5 bg-slate-800 rounded-full"></div>
+                <span>5G 100%</span>
+            </div>
+
+            <!-- =====================================================
+                 SECTION 1: HEADER / NAVIGATION BAR
+                 ===================================================== -->
+            <section id="sec-header" class="wf-zone bg-white border-b border-slate-200 border-t-0 border-x-0 sticky top-0 z-30">
+                <div class="wf-section-pad px-6 py-4 flex items-center justify-between gap-4">
+                    <!-- Wireframe Logo -->
+                    <a href="#sec-hero" class="flex items-center gap-2.5 group">
+                        <div class="px-2 py-1 rounded border-2 border-slate-800 bg-slate-100 font-mono text-xs font-bold tracking-wider text-slate-800">
+                            [LOGO]
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-900 text-base leading-none">เที่ยวชลบุรี</span>
+                            <span class="font-mono text-[10px] text-slate-500">CHONBURI GUIDE</span>
+                        </div>
+                    </a>
+
+                    <!-- Desktop Menu Links -->
+                    <nav class="wf-desktop-nav hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+                        <a href="#sec-hero" class="text-slate-900 font-semibold border-b-2 border-slate-800 pb-0.5">หน้าแรก</a>
+                        <a href="#sec-landmarks" class="hover:text-slate-900 transition">แลนด์มาร์ค</a>
+                        <a href="#sec-trips" class="hover:text-slate-900 transition">เส้นทางเที่ยว</a>
+                        <a href="#sec-landmarks" onclick="selectCategory('แลนด์มาร์คถ่ายรูป')" class="hover:text-slate-900 transition">คาเฟ่ & ของกิน</a>
+                        <a href="#sec-map" class="hover:text-slate-900 transition">แผนที่</a>
+                    </nav>
+
+                    <!-- Right Actions: Search Icon + CTA + Mobile Hamburger -->
+                    <div class="flex items-center gap-2">
+                        <button onclick="focusSearch()" title="ค้นหาที่เที่ยว"
+                            class="p-2.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-200 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </button>
+
+                        <button onclick="openTripDrawer()"
+                            class="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-slate-800 text-white text-xs sm:text-sm font-medium hover:bg-slate-700 transition shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            <span class="wf-header-cta-text">วางแผนทริป</span>
+                            <span id="trip-count-badge" class="px-1.5 py-0.5 text-[10px] font-mono rounded-full bg-slate-600 text-white">0</span>
+                        </button>
+
+                        <!-- Mobile Hamburger Button -->
+                        <button onclick="toggleMobileNav()" class="wf-mobile-menu-btn md:hidden p-2.5 rounded-lg border border-slate-300 bg-white text-slate-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Collapsible Mobile Drawer Menu -->
+                <div id="mobile-nav-drawer" class="hidden border-t border-slate-200 bg-slate-50 px-6 py-3 space-y-2 text-sm">
+                    <a href="#sec-hero" onclick="toggleMobileNav()" class="block py-1.5 font-semibold text-slate-900">หน้าแรก</a>
+                    <a href="#sec-landmarks" onclick="toggleMobileNav()" class="block py-1.5 text-slate-600">แลนด์มาร์ค</a>
+                    <a href="#sec-trips" onclick="toggleMobileNav()" class="block py-1.5 text-slate-600">เส้นทางเที่ยว</a>
+                    <a href="#sec-landmarks" onclick="selectCategory('แลนด์มาร์คถ่ายรูป'); toggleMobileNav();" class="block py-1.5 text-slate-600">คาเฟ่ & ของกิน</a>
+                    <a href="#sec-map" onclick="toggleMobileNav()" class="block py-1.5 text-slate-600">แผนที่โซนท่องเที่ยว</a>
+                </div>
+
+                <!-- UX Annotation #1 -->
+                <div class="ux-annotation-panel bg-blue-50 border-t border-blue-200 px-6 py-2.5 text-xs text-blue-900">
+                    <div class="flex items-start gap-2">
+                        <span class="ux-annotation-badge shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white font-mono text-[11px] font-bold items-center justify-center">1</span>
+                        <p><strong>UX Note (Navigation & Sticky CTA):</strong> แถบเมนูยึดติดด้านบน (Sticky Header) เพื่อให้ผู้ใช้เข้าถึงปุ่ม <em>"วางแผนทริป"</em> และช่องค้นหาได้ตลอดเวลา ลดความซับซ้อนเหลือ 5 เมนูหลัก และยุบเป็น Hamburger Menu ในหน้าจอมือถือ</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =====================================================
+                 SECTION 2: HERO SECTION & QUICK FILTERS
+                 ===================================================== -->
+            <section id="sec-hero" class="wf-zone m-4 sm:m-6 rounded-2xl bg-white p-5 sm:p-8 shadow-sm">
+                <!-- Annotation Badge Corner -->
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-mono text-[11px] text-slate-400 uppercase tracking-wider">SECTION 01 // HERO & DISCOVERY</span>
+                    <span class="ux-annotation-badge w-6 h-6 rounded-full bg-blue-600 text-white font-mono text-xs font-bold items-center justify-center shadow">2</span>
+                </div>
+
+                <!-- Hero Banner Crossed-Out Wireframe Image Placeholder -->
+                <div class="wf-img-box w-full aspect-[16/9] max-h-[360px] rounded-xl flex flex-col items-center justify-center p-4 mb-6">
+                    <div class="wf-img-label px-4 py-3 rounded-lg text-center max-w-md">
+                        <svg class="w-8 h-8 mx-auto text-slate-400 mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="text-xs sm:text-sm font-semibold text-slate-700">Hero Banner: วิวทะเลบางแสน / เกาะล้าน (16:9)</p>
+                        <p class="font-mono text-[10px] text-slate-500 mt-0.5">Recommended: 1440 x 540px • Subtle Dark Overlay</p>
+                    </div>
+                </div>
+
+                <!-- Headline & Subheadline -->
+                <div class="max-w-3xl mx-auto text-center space-y-3">
+                    <h2 class="wf-hero-title text-2xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+                        ชลบุรี... เที่ยวได้ทุกสไตล์ ใกล้กรุงแค่ชั่วโมงเดียว
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-500">
+                        รวมแลนด์มาร์คยอดฮิต ทะเลสวย สวนสัตว์เปิดเขาเขียว คาเฟ่ริมหาด และแพลนเที่ยวครบจบในที่เดียว
+                    </p>
+
+                    <!-- Interactive Search Bar -->
+                    <div class="pt-3 max-w-2xl mx-auto">
+                        <div class="relative flex items-center">
+                            <svg class="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <input type="text" id="search-input"
+                                oninput="handleSearch(this.value)"
+                                placeholder="ค้นหาที่เที่ยว เช่น เกาะล้าน, บางแสน, สวนสัตว์เปิดเขาเขียว..."
+                                class="w-full pl-11 pr-24 py-3.5 rounded-xl border-2 border-slate-300 bg-slate-50 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:bg-white transition">
+                            <button id="clear-search-btn" onclick="clearSearch()"
+                                class="hidden absolute right-3 px-2.5 py-1 rounded-md bg-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-300">
+                                ล้างคำค้น
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Category Pills -->
+                    <div class="pt-4">
+                        <p class="font-mono text-[10px] text-slate-400 mb-2">QUICK FILTER PILLS (CLICKABLE):</p>
+                        <div id="category-pills" class="flex flex-wrap justify-center gap-2">
+                            <!-- Rendered dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UX Annotation #2 -->
+                <div class="ux-annotation-panel mt-6 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900">
+                    <div class="flex items-start gap-2">
+                        <span class="ux-annotation-badge shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white font-mono text-[11px] font-bold items-center justify-center">2</span>
+                        <p><strong>UX Note (Above-the-Fold Search & Quick Filters):</strong> วางช่องค้นหาและปุ่มหมวดหมู่ (Category Pills) ไว้ตั้งแต่หน้าแรก เพื่อรองรับนักท่องเที่ยว 2 กลุ่ม คือ กลุ่มที่มีจุดหมายในใจแล้ว (ใช้ Search) และกลุ่มที่กำลังหาไอเดีย (กดกรองตามสไตล์)</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =====================================================
+                 SECTION 3: HIGHLIGHT LANDMARKS GRID (8 CARDS)
+                 ===================================================== -->
+            <section id="sec-landmarks" class="wf-zone m-4 sm:m-6 rounded-2xl bg-white p-5 sm:p-8 shadow-sm">
+                <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+                    <div>
+                        <span class="font-mono text-[11px] text-slate-400 uppercase tracking-wider">SECTION 02 // LANDMARK CARDS</span>
+                        <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+                            แลนด์มาร์คห้ามพลาดในชลบุรี
+                        </h3>
+                        <p id="landmark-result-count" class="text-xs sm:text-sm text-slate-500 mt-1">
+                            แสดงทั้งหมด 8 สถานที่ยอดนิยม
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-mono text-[11px] px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-slate-600">
+                            Card Action: Click for Modal
+                        </span>
+                        <span class="ux-annotation-badge w-6 h-6 rounded-full bg-blue-600 text-white font-mono text-xs font-bold items-center justify-center shadow">3</span>
+                    </div>
+                </div>
+
+                <!-- Landmark Cards Grid -->
+                <div id="landmarks-grid" class="wf-grid-cards grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- Populated via JavaScript -->
+                </div>
+
+                <!-- Empty State (when search yields no results) -->
+                <div id="landmarks-empty" class="hidden py-12 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
+                    <p class="text-slate-600 font-medium">ไม่พบสถานที่ท่องเที่ยวที่ตรงกับคำค้นหา</p>
+                    <button onclick="resetFilters()" class="mt-3 px-4 py-2 rounded-lg bg-slate-800 text-white text-xs font-medium hover:bg-slate-700">
+                        แสดงแลนด์มาร์คทั้งหมด
+                    </button>
+                </div>
+
+                <!-- UX Annotation #3 -->
+                <div class="ux-annotation-panel mt-6 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900">
+                    <div class="flex items-start gap-2">
+                        <span class="ux-annotation-badge shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white font-mono text-[11px] font-bold items-center justify-center">3</span>
+                        <p><strong>UX Note (Scannable Card Hierarchy):</strong> การ์ดแต่ละใบจำกัดข้อมูลสำคัญเพียง 5 จุด (ภาพ 4:3, หมวดหมู่, ชื่อสถานที่+อำเภอ, จุดเด่น 1 บรรทัด, คะแนนรีวิว) เพื่อให้กวาดสายตาเปรียบเทียบได้เร็ว และใช้ <em>Modal</em> แสดงรายละเอียดเชิงลึกโดยไม่ต้องเปลี่ยนหน้า</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =====================================================
+                 SECTION 4: INTERACTIVE ZONE MAP WIREFRAME
+                 ===================================================== -->
+            <section id="sec-map" class="wf-zone m-4 sm:m-6 rounded-2xl bg-white p-5 sm:p-8 shadow-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <span class="font-mono text-[11px] text-slate-400 uppercase tracking-wider">SECTION 03 // INTERACTIVE SCHEMATIC MAP</span>
+                        <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+                            สำรวจตามโซนยอดนิยม
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                            คลิกเลือกหมุดโซนบนแผนที่จำลองเพื่อดูเวลาเดินทางจากกรุงเทพฯ และแลนด์มาร์คใกล้เคียง
+                        </p>
+                    </div>
+                    <span class="ux-annotation-badge w-6 h-6 rounded-full bg-blue-600 text-white font-mono text-xs font-bold items-center justify-center shadow">4</span>
+                </div>
+
+                <!-- Split Layout: Left Schematic Map / Right Dynamic Zone Info -->
+                <div class="wf-map-split grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    <!-- Left: Wireframe Schematic Map Box -->
+                    <div class="lg:col-span-7 relative rounded-xl border-2 border-slate-300 bg-slate-50 p-4 min-h-[340px] flex flex-col justify-between overflow-hidden">
+                        <div class="flex items-center justify-between z-10">
+                            <span class="font-mono text-[10px] px-2 py-1 bg-white border border-slate-300 rounded text-slate-600">
+                                [MAP SCHEMATIC: CHONBURI COASTLINE]
+                            </span>
+                            <span class="font-mono text-[10px] text-slate-400">NORTH ↑</span>
+                        </div>
+
+                        <!-- Stylized Wireframe SVG Coastline + Interactive Pins -->
+                        <div class="relative flex-1 my-2 flex items-center justify-center">
+                            <svg viewBox="0 0 420 260" class="w-full h-full max-h-[260px]" aria-label="แผนที่จำลองจังหวัดชลบุรี">
+                                <!-- Sea Grid Pattern -->
+                                <rect x="0" y="0" width="420" height="260" fill="#F1F5F9" rx="8"/>
+                                <!-- Gulf of Thailand Label -->
+                                <text x="24" y="210" font-family="JetBrains Mono" font-size="10" fill="#94A3B8">GULF OF THAILAND</text>
+                                <text x="24" y="224" font-family="Prompt" font-size="10" fill="#94A3B8">(อ่าวไทย)</text>
+
+                                <!-- Landmass Wireframe Shape (Chonburi Coastline) -->
+                                <path d="M 150 10 L 410 10 L 410 250 L 210 250 C 195 225, 175 215, 170 190 C 165 165, 185 145, 175 115 C 165 85, 130 70, 140 40 Z"
+                                      fill="#FFFFFF" stroke="#94A3B8" stroke-width="2" stroke-dasharray="5 3"/>
+
+                                <!-- Motorway Route 7 Line from Bangkok -->
+                                <path d="M 190 10 Q 225 60, 255 105 T 230 225" fill="none" stroke="#CBD5E1" stroke-width="3" stroke-dasharray="4 4"/>
+                                <text x="200" y="24" font-family="Prompt" font-size="9" fill="#64748B">จาก กทม. (มอเตอร์เวย์สาย 7)</text>
+
+                                <!-- Koh Larn Island Outline -->
+                                <ellipse cx="110" cy="175" rx="16" ry="10" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3 2"/>
+                                <text x="86" y="196" font-family="Prompt" font-size="9" fill="#64748B">เกาะล้าน</text>
+                            </svg>
+
+                            <!-- Clickable Zone Pins Overlaid on Map -->
+                            <button onclick="selectZone('bangsaen')" id="pin-bangsaen"
+                                class="zone-pin absolute top-[18%] left-[38%] -translate-x-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm transition-all flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-current"></span>
+                                <span>1. บางแสน-อ่างศิลา</span>
+                            </button>
+
+                            <button onclick="selectZone('sriracha')" id="pin-sriracha"
+                                class="zone-pin absolute top-[43%] left-[62%] -translate-x-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm transition-all flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-current"></span>
+                                <span>2. ศรีราชา-เขาเขียว</span>
+                            </button>
+
+                            <button onclick="selectZone('pattaya')" id="pin-pattaya"
+                                class="zone-pin absolute top-[65%] left-[44%] -translate-x-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm transition-all flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-current"></span>
+                                <span>3. พัทยา-เกาะล้าน</span>
+                            </button>
+
+                            <button onclick="selectZone('sattahip')" id="pin-sattahip"
+                                class="zone-pin absolute top-[86%] left-[63%] -translate-x-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm transition-all flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-current"></span>
+                                <span>4. สัตหีบ</span>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 border-t border-slate-200 pt-2">
+                            <span>INTERACTION: Click any pin to inspect zone</span>
+                            <span>4 ZONES</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Dynamic Zone Detail Panel -->
+                    <div id="zone-detail-panel" class="lg:col-span-5 rounded-xl border border-slate-300 bg-slate-50 p-5 flex flex-col justify-between">
+                        <!-- Dynamically Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- UX Annotation #4 -->
+                <div class="ux-annotation-panel mt-6 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900">
+                    <div class="flex items-start gap-2">
+                        <span class="ux-annotation-badge shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white font-mono text-[11px] font-bold items-center justify-center">4</span>
+                        <p><strong>UX Note (Zone-Based Wayfinding):</strong> ชลบุรีมีพื้นที่ยาวตามแนวชายฝั่ง การแบ่งเป็น 4 โซนหลักพร้อมระบุ <em>"เวลาเดินทางจาก กทม."</em> ช่วยให้นักท่องเที่ยวประเมินระยะทางและจับคู่สถานที่ใกล้กันได้ง่ายขึ้นโดยไม่ย้อนไปมา</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =====================================================
+                 SECTION 5: 1-DAY / 2-DAY TRIP PLANNER TEASER
+                 ===================================================== -->
+            <section id="sec-trips" class="wf-zone m-4 sm:m-6 rounded-2xl bg-white p-5 sm:p-8 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                        <span class="font-mono text-[11px] text-slate-400 uppercase tracking-wider">SECTION 04 // ITINERARY WIREFRAME</span>
+                        <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+                            ตัวอย่างแพลนเที่ยวยอดนิยม
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                            ไอเดียจัดตารางเวลาเที่ยวชลบุรีแบบสำเร็จรูป เลือกสลับดูได้ตามจำนวนวัน
+                        </p>
+                    </div>
+                    <span class="ux-annotation-badge w-6 h-6 rounded-full bg-blue-600 text-white font-mono text-xs font-bold items-center justify-center shadow">5</span>
+                </div>
+
+                <!-- Trip Tabs -->
+                <div class="wf-trip-tabs flex gap-2 p-1.5 bg-slate-100 rounded-xl border border-slate-200 mb-6">
+                    <button id="tab-1day" onclick="switchTripTab('1day')"
+                        class="flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all bg-slate-800 text-white shadow-sm">
+                        One Day Trip บางแสน-เขาสามมุข
+                    </button>
+                    <button id="tab-2day" onclick="switchTripTab('2day')"
+                        class="flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900">
+                        2 วัน 1 คืน พัทยา-เกาะล้าน
+                    </button>
+                </div>
+
+                <!-- Vertical Timeline Container -->
+                <div id="trip-timeline-content" class="space-y-4">
+                    <!-- Rendered dynamically via JS -->
+                </div>
+
+                <!-- UX Annotation #5 -->
+                <div class="ux-annotation-panel mt-6 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900">
+                    <div class="flex items-start gap-2">
+                        <span class="ux-annotation-badge shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white font-mono text-[11px] font-bold items-center justify-center">5</span>
+                        <p><strong>UX Note (Actionable Timeline):</strong> ใช้โครงสร้าง Vertical Timeline แสดงช่วงเวลาชัดเจน (09:00 → 18:00) ช่วยลดภาระการตัดสินใจ (Decision Fatigue) และเปลี่ยนผู้ชมที่แค่เข้ามาดูข้อมูลให้วางแผนเดินทางจริงได้ทันที</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =====================================================
+                 SECTION 6: WIREFRAME FOOTER (4 COLUMNS)
+                 ===================================================== -->
+            <footer class="wf-zone bg-slate-100 border-t border-slate-300 border-x-0 border-b-0 mt-8">
+                <div class="wf-section-pad px-6 sm:px-8 py-10">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="font-mono text-[11px] text-slate-400 uppercase tracking-wider">SECTION 05 // FOOTER (4-COLUMN GRID)</span>
+                        <span class="ux-annotation-badge w-6 h-6 rounded-full bg-blue-600 text-white font-mono text-xs font-bold items-center justify-center shadow">6</span>
+                    </div>
+
+                    <div class="wf-footer-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <!-- Col 1: About -->
+                        <div class="space-y-3">
+                            <div class="inline-flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded border border-slate-700 bg-white font-mono text-xs font-bold">[LOGO]</span>
+                                <span class="font-bold text-slate-800">เที่ยวชลบุรี</span>
+                            </div>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                คู่มือวางแผนท่องเที่ยวและรวมแลนด์มาร์คจังหวัดชลบุรี อัปเดตข้อมูลเวลาเปิด-ปิด เส้นทาง และแพลนเที่ยวสำหรับทุกไลฟ์สไตล์
+                            </p>
+                        </div>
+
+                        <!-- Col 2: Travel Zones -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 mb-3">โซนท่องเที่ยว</h4>
+                            <ul class="space-y-2 text-xs text-slate-600">
+                                <li><a href="#sec-map" onclick="selectZone('bangsaen')" class="hover:underline">โซนบางแสน - อ่างศิลา</a></li>
+                                <li><a href="#sec-map" onclick="selectZone('sriracha')" class="hover:underline">โซนศรีราชา - เขาเขียว</a></li>
+                                <li><a href="#sec-map" onclick="selectZone('pattaya')" class="hover:underline">โซนพัทยา - เกาะล้าน</a></li>
+                                <li><a href="#sec-map" onclick="selectZone('sattahip')" class="hover:underline">โซนสัตหีบ - แสมสาร</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Col 3: Contact -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 mb-3">ช่องทางติดต่อ</h4>
+                            <ul class="space-y-2 text-xs text-slate-600 font-mono">
+                                <li>Email: hello@chonburiguide.th</li>
+                                <li>Tel: 038-XXX-XXXX</li>
+                                <li>Line OA: @chonburitravel</li>
+                            </ul>
+                        </div>
+
+                        <!-- Col 4: Social Placeholders -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 mb-3">ติดตามเรา</h4>
+                            <div class="flex items-center gap-2">
+                                <span class="w-9 h-9 rounded-lg border border-slate-300 bg-white flex items-center justify-center font-mono text-[10px] font-semibold text-slate-600">FB</span>
+                                <span class="w-9 h-9 rounded-lg border border-slate-300 bg-white flex items-center justify-center font-mono text-[10px] font-semibold text-slate-600">IG</span>
+                                <span class="w-9 h-9 rounded-lg border border-slate-300 bg-white flex items-center justify-center font-mono text-[10px] font-semibold text-slate-600">YT</span>
+                                <span class="w-9 h-9 rounded-lg border border-slate-300 bg-white flex items-center justify-center font-mono text-[10px] font-semibold text-slate-600">TT</span>
+                            </div>
+                            <p class="font-mono text-[10px] text-slate-400 mt-3">[Newsletter Input Placeholder]</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-4 border-t border-slate-300 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-500">
+                        <span>© 2026 CHONBURI TRAVEL WIREFRAME PROTOTYPE</span>
+                        <span>DESIGNED FOR UX/UI REVIEW</span>
+                    </div>
+                </div>
+
+                <!-- UX Annotation #6 -->
+                <div class="ux-annotation-panel bg-blue-50 border-t border-blue-200 px-6 py-2.5 text-xs text-blue-900">
+                    <div class="flex items-start gap-2">
+                        <span class="ux-annotation-badge shrink-0 w-5 h-5 rounded-full bg-blue-600 text-white font-mono text-[11px] font-bold items-center justify-center">6</span>
+                        <p><strong>UX Note (Structured Footer):</strong> จัดวางข้อมูลแบบ 4 คอลัมน์มาตรฐาน เพื่อเป็นทางลัดกลับไปยังโซนท่องเที่ยวต่างๆ และสร้างความน่าเชื่อถือผ่านช่องทางการติดต่อที่ชัดเจน</p>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+    </main>
+
+    <!-- =========================================================
+         WIREFRAME DETAIL MODAL (LANDMARK DETAILS)
+         ========================================================= -->
+    <div id="landmark-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4" onclick="closeModalOnBackdrop(event, 'landmark-modal')">
+        <div class="bg-white w-full max-w-2xl rounded-2xl border-2 border-slate-300 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold">MODAL WIREFRAME</span>
+                    <span id="modal-category" class="text-xs font-medium text-slate-500">หมวดหมู่</span>
+                </div>
+                <button onclick="closeModal('landmark-modal')" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 transition" aria-label="ปิดหน้าต่าง">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-6 overflow-y-auto custom-scroll space-y-5">
+                <!-- Gallery Wireframe Placeholder -->
+                <div class="space-y-2">
+                    <div class="wf-img-box w-full aspect-[16/9] rounded-xl flex items-center justify-center p-4">
+                        <div class="wf-img-label px-4 py-2 rounded-lg text-center">
+                            <p id="modal-img-caption" class="text-xs font-semibold text-slate-700">ภาพบรรยากาศหลัก (16:9)</p>
+                            <p class="font-mono text-[10px] text-slate-500">Gallery Main Image • 800x450px</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="wf-img-box h-16 rounded-lg flex items-center justify-center">
+                            <span class="wf-img-label px-1.5 py-0.5 rounded font-mono text-[9px] text-slate-500">Thumb 1</span>
+                        </div>
+                        <div class="wf-img-box h-16 rounded-lg flex items-center justify-center">
+                            <span class="wf-img-label px-1.5 py-0.5 rounded font-mono text-[9px] text-slate-500">Thumb 2</span>
+                        </div>
+                        <div class="wf-img-box h-16 rounded-lg flex items-center justify-center">
+                            <span class="wf-img-label px-1.5 py-0.5 rounded font-mono text-[9px] text-slate-500">+5 Photos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Title & Rating -->
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                        <h3 id="modal-title" class="text-xl sm:text-2xl font-bold text-slate-900">ชื่อสถานที่</h3>
+                        <p id="modal-subtitle" class="text-xs font-mono text-slate-500 mt-0.5">English Name • District</p>
+                    </div>
+                    <div class="px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-sm font-semibold text-slate-800">
+                        ★ <span id="modal-rating">4.8</span>
+                    </div>
+                </div>
+
+                <!-- Key Info Grid (Hours, Fee, Location) -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+                        <p class="font-mono text-[10px] text-slate-400 uppercase">เวลาเปิด-ปิด</p>
+                        <p id="modal-hours" class="text-xs font-semibold text-slate-800 mt-1">-</p>
+                    </div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+                        <p class="font-mono text-[10px] text-slate-400 uppercase">ค่าเข้าชม</p>
+                        <p id="modal-fee" class="text-xs font-semibold text-slate-800 mt-1">-</p>
+                    </div>
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50">
+                        <p class="font-mono text-[10px] text-slate-400 uppercase">พิกัด / โซน</p>
+                        <p id="modal-location" class="text-xs font-semibold text-slate-800 mt-1">-</p>
+                    </div>
+                </div>
+
+                <!-- Highlights List -->
+                <div>
+                    <h4 class="text-sm font-bold text-slate-900 mb-2">ไฮไลต์ห้ามพลาด</h4>
+                    <ul id="modal-highlights" class="space-y-1.5 text-sm text-slate-600 list-disc list-inside">
+                        <!-- Populated via JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+                <button onclick="closeModal('landmark-modal')" class="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 text-sm font-medium hover:bg-slate-100 transition">
+                    ปิดหน้าต่าง
+                </button>
+                <button id="modal-trip-btn" onclick="toggleTripFromModal()" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition flex items-center justify-center gap-2">
+                    <span>+ เพิ่มลงทริปของฉัน</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MY TRIP PLANNER MODAL (SAVED LANDMARKS)
+         ========================================================= -->
+    <div id="trip-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4" onclick="closeModalOnBackdrop(event, 'trip-modal')">
+        <div class="bg-white w-full max-w-lg rounded-2xl border-2 border-slate-300 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                    <span class="font-mono text-[10px] text-slate-400">TRIP PLANNER DRAWER</span>
+                    <h3 class="text-lg font-bold text-slate-900">ทริปชลบุรีของฉัน</h3>
+                </div>
+                <button onclick="closeModal('trip-modal')" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="trip-list-body" class="p-6 overflow-y-auto custom-scroll space-y-3">
+                <!-- Populated via JS -->
+            </div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+                <button onclick="closeModal('trip-modal')" class="px-4 py-2 rounded-xl bg-slate-800 text-white text-sm font-medium hover:bg-slate-700">
+                    ตกลง
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         CUSTOM TOAST NOTIFICATION (REPLACES ALERT)
+         ========================================================= -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 text-sm transition-all">
+        <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+        <span id="toast-msg">บันทึกข้อมูลเรียบร้อย</span>
+    </div>
+
+    <!-- =========================================================
+         JAVASCRIPT DATA & INTERACTIVE LOGIC
+         ========================================================= -->
+    <script>
+        // ---------------------------------------------------------
+        // 1. CHONBURI LANDMARKS MOCK DATA (8 FAMOUS LANDMARKS)
+        // ---------------------------------------------------------
+        const landmarksData = [
+            {
+                id: 'bangsaen',
+                name: 'หาดบางแสน',
+                enName: 'Bang Saen Beach',
+                category: 'ทะเล & เกาะ',
+                district: 'อ.เมืองชลบุรี',
+                zone: 'bangsaen',
+                highlight: 'ชายหาดยอดฮิตใกล้กรุง เตียงผ้าใบริมทะเล คาเฟ่และสตรีทฟู้ดเพียบ',
+                rating: '4.6',
+                hours: 'เปิดตลอด 24 ชม.',
+                fee: 'เข้าชมฟรี (ค่าเตียงผ้าใบตามจริง)',
+                location: 'ต.แสนสุข อ.เมืองชลบุรี',
+                highlights: [
+                    'เดินเล่นริมหาดช่วงเย็น ชมพระอาทิตย์ตกบรรยากาศชิลๆ',
+                    'ลิ้มลองอาหารทะเลสดๆ ปลาหมึกย่าง ส้มตำ ริมชายหาด',
+                    'ปั่นจักรยานเลียบถนนลงหาด แวะคาเฟ่สไตล์มินิมอลตลอดแนว'
+                ]
+            },
+            {
+                id: 'kohlarn',
+                name: 'เกาะล้าน',
+                enName: 'Koh Larn',
+                category: 'ทะเล & เกาะ',
+                district: 'พัทยา (อ.บางละมุง)',
+                zone: 'pattaya',
+                highlight: 'น้ำทะเลสีฟ้าใส หาดทรายขาว มีจุดชมวิวกังหันลมและคาเฟ่ริมผา',
+                rating: '4.9',
+                hours: 'เรือข้ามฟาก 07:00 - 18:30 น.',
+                fee: 'ค่าเรือโดยสาร 30 บาท / เที่ยว',
+                location: 'ขึ้นเรือที่ท่าเรือแหลมบาลีฮาย พัทยา',
+                highlights: [
+                    'หาดตาแหวนและหาดเทียน น้ำทะเลใสแจ๋วเหมาะแก่การเล่นน้ำ',
+                    'เช่ามอเตอร์ไซค์ขี่รอบเกาะ แวะจุดชมวิวกังหันลมแบบ 360 องศา',
+                    'พายเรือคายัคใสและถ่ายรูปกับฝูงห่านที่หาดเทียน'
+                ]
+            },
+            {
+                id: 'sanctuary',
+                name: 'ปราสาทสัจธรรม',
+                enName: 'Sanctuary of Truth',
+                category: 'วัฒนธรรม & สถาปัตยกรรม',
+                district: 'พัทยาเหนือ',
+                zone: 'pattaya',
+                highlight: 'ปราสาทไม้แกะสลักขนาดมหึมาริมทะเล สร้างด้วยเทคนิคเข้าเดือยไม้โบราณ',
+                rating: '4.8',
+                hours: '08:00 - 18:00 น. (รอบกลางคืน 18:30 - 20:30)',
+                fee: 'ผู้ใหญ่ 500 บาท / เด็ก 250 บาท',
+                location: 'ซอยนาเกลือ 12 อ.บางละมุง',
+                highlights: [
+                    'สถาปัตยกรรมไม้แกะสลักที่ใหญ่ที่สุดแห่งหนึ่งของโลก ไม่ใช้ตะปูเหล็ก',
+                    'มีไกด์นำชมอธิบายปรัชญาตะวันออกและลวดลายแกะสลักอย่างละเอียด',
+                    'มุมถ่ายภาพริมทะเลสุดอลังการ เหมาะกับสายศิลปะและวัฒนธรรม'
+                ]
+            },
+            {
+                id: 'khaokheow',
+                name: 'สวนสัตว์เปิดเขาเขียว',
+                enName: 'Khao Kheow Open Zoo (หมูเด้ง)',
+                category: 'ธรรมชาติ & สวนสัตว์',
+                district: 'อ.ศรีราชา',
+                zone: 'sriracha',
+                highlight: 'บ้านของ "น้องหมูเด้ง" ฮิปโปแคระขวัญใจทั่วโลก พร้อมกิจกรรมให้อาหารสัตว์ใกล้ชิด',
+                rating: '4.9',
+                hours: '08:00 - 17:00 น. (ทุกวัน)',
+                fee: 'ผู้ใหญ่ 200 บาท / เด็ก 40 บาท',
+                location: 'ต.บางพระ อ.ศรีราชา',
+                highlights: [
+                    'ชมความน่ารักของ "น้องหมูเด้ง" และครอบครัวฮิปโปแคระโซนสัตว์แอฟริกา',
+                    'ขับรถกอล์ฟชมสวนสัตว์แบบใกล้ชิด ให้อาหารยีราฟ คาปิบาร่า และละมั่ง',
+                    'โชว์พาเหรดเพนกวินและช้างว่ายน้ำที่เป็นเอกลักษณ์'
+                ]
+            },
+            {
+                id: 'nongnooch',
+                name: 'สวนนงนุช พัทยา',
+                enName: 'Nong Nooch Tropical Garden',
+                category: 'ธรรมชาติ & สวนสัตว์',
+                district: 'อ.สัตหีบ',
+                zone: 'sattahip',
+                highlight: 'สวนพฤกษศาสตร์ระดับโลก หุบเขาไดโนเสาร์ และสวนฝรั่งเศสสุดตระการตา',
+                rating: '4.7',
+                hours: '08:00 - 18:00 น. (ทุกวัน)',
+                fee: 'บัตรผ่านประตูเริ่มต้น 300 บาท',
+                location: 'ต.นาจอมเทียน อ.สัตหีบ',
+                highlights: [
+                    'หุบเขาไดโนเสาร์จำลองขนาดเท่าตัวจริงกว่า 1,000 ตัว ถูกใจทุกวัย',
+                    'เดินชมสวนสวยหลากหลายสไตล์ เช่น สวนฝรั่งเศส สวนลอยฟ้า และสโตนเฮนจ์',
+                    'บริการรถรางนำเที่ยวชมพื้นที่กว้างขวางสะดวกสบาย'
+                ]
+            },
+            {
+                id: 'grandcanyon',
+                name: 'แกรนด์แคนยอน คีรี',
+                enName: 'Grand Canyon Chonburi',
+                category: 'แลนด์มาร์คถ่ายรูป',
+                district: 'อ.เมืองชลบุรี',
+                zone: 'bangsaen',
+                highlight: 'บ่อเหมืองหินเก่าน้ำสีเขียวมรกต โอบล้อมด้วยภูเขาหินสีขาวตัดกับท้องฟ้า',
+                rating: '4.5',
+                hours: '08:00 - 18:00 น.',
+                fee: 'ค่าจอดรถ 20 บาท',
+                location: 'ซอยคีรีนคร 8/1 ต.ห้วยกะปิ อ.เมือง',
+                highlights: [
+                    'จุดถ่ายภาพมุมสูงเห็นแอ่งน้ำสีมรกตและหน้าผาหินสวยงามแปลกตา',
+                    'เนินหินสีขาว "ภูเขาหิมะ" (Snow Mountain) มุมยอดฮิตของสายถ่ายรูป',
+                    'เดินทางสะดวก ห่างจากหาดบางแสนเพียง 15 นาที'
+                ]
+            },
+            {
+                id: 'khaosammuk',
+                name: 'เขาสามมุข',
+                enName: 'Khao Sam Muk',
+                category: 'แลนด์มาร์คถ่ายรูป',
+                district: 'อ.เมืองชลบุรี',
+                zone: 'bangsaen',
+                highlight: 'จุดชมวิวทะเลมุมสูง อุโมงค์ตัวอักษร BANGSAEN และคาเฟ่วิวทะเลสุดปัง',
+                rating: '4.7',
+                hours: 'เปิดตลอด 24 ชม. (แนะนำ 16:30 - 18:30)',
+                fee: 'เข้าชมฟรี',
+                location: 'ต.แสนสุข อ.เมืองชลบุรี',
+                highlights: [
+                    'จุดเช็คอินป้ายตัวอักษร "BANGSAEN" สีขาวริมหน้าผา มองเห็นวิวทะเลกว้าง',
+                    'ชมพระอาทิตย์ตกดินสวยที่สุดแห่งหนึ่งของชลบุรี',
+                    'แวะสักการะศาลเจ้าแม่สามมุขและคาเฟ่วิวทะเลริมเขา'
+                ]
+            },
+            {
+                id: 'fishmarket',
+                name: 'ตลาดปลาบางแสน',
+                enName: 'Bang Saen Fish Market',
+                category: 'แลนด์มาร์คถ่ายรูป',
+                district: 'อ.เมืองชลบุรี',
+                zone: 'bangsaen',
+                highlight: 'ตลาดอาหารทะเลสดสไตล์ญี่ปุ่น มุมถ่ายรูปป้ายสถานีรถไฟและของกินละลานตา',
+                rating: '4.6',
+                hours: '10:00 - 23:00 น. (ปิดวันอังคาร)',
+                fee: 'เข้าชมฟรี',
+                location: 'ถนนข้าวหลาม ต.แสนสุข อ.เมือง',
+                highlights: [
+                    'จำลองบรรยากาศตลาดปลาญี่ปุ่น มีมุมถ่ายรูปป้ายสถานีรถไฟและโคมแดง',
+                    'รวมอาหารทะเลสด ซาชิมิ กุ้งเผา หอยนางรม และขนมสไตล์ญี่ปุ่น',
+                    'มีโซนที่นั่งรับประทานอาหารกว้างขวาง เดินทางง่ายติดถนนข้าวหลาม'
+                ]
+            }
+        ];
+
+        // ---------------------------------------------------------
+        // 2. ZONES DATA FOR INTERACTIVE MAP
+        // ---------------------------------------------------------
+        const zonesData = {
+            bangsaen: {
+                title: 'โซนบางแสน - อ่างศิลา',
+                travelTime: 'ประมาณ 1 - 1.5 ชม. จากกรุงเทพฯ',
+                vibe: ['เที่ยววันเดียว (One Day Trip)', 'สายคาเฟ่', 'อาหารทะเล'],
+                desc: 'โซนยอดฮิตที่ใกล้กรุงเทพฯ ที่สุด เดินทางง่ายด้วยมอเตอร์เวย์ เหมาะสำหรับทริปวันหยุดสั้นๆ กินซีฟู้ดและถ่ายรูปริมทะเล',
+                landmarkIds: ['bangsaen', 'khaosammuk', 'fishmarket', 'grandcanyon']
+            },
+            sriracha: {
+                title: 'โซนศรีราชา - เขาเขียว',
+                travelTime: 'ประมาณ 1.5 ชม. จากกรุงเทพฯ',
+                vibe: ['ครอบครัว & เด็ก', 'ธรรมชาติ', 'สไตล์ญี่ปุ่น'],
+                desc: 'โซนธรรมชาติและสวนสัตว์ระดับประเทศ โดดเด่นด้วยสวนสัตว์เปิดเขาเขียว อ่างเก็บน้ำบางพระ และชุมชนสไตล์ญี่ปุ่นในเมืองศรีราชา',
+                landmarkIds: ['khaokheow']
+            },
+            pattaya: {
+                title: 'โซนพัทยา - เกาะล้าน',
+                travelTime: 'ประมาณ 2 ชม. จากกรุงเทพฯ',
+                vibe: ['ทะเลน้ำใส', 'แลนด์มาร์คระดับโลก', 'ที่พักหลากหลาย'],
+                desc: 'เมืองท่องเที่ยวครบวงจร มีทั้งเกาะน้ำใสอย่างเกาะล้าน สถาปัตยกรรมระดับโลกอย่างปราสาทสัจธรรม และแหล่งไลฟ์สไตล์ครบครัน',
+                landmarkIds: ['kohlarn', 'sanctuary']
+            },
+            sattahip: {
+                title: 'โซนสัตหีบ - นาจอมเทียน',
+                travelTime: 'ประมาณ 2.5 ชม. จากกรุงเทพฯ',
+                vibe: ['สงบ เป็นส่วนตัว', 'สวนพฤกษศาสตร์', 'ทะเลสวย'],
+                desc: 'โซนทางตอนใต้ของชลบุรีที่ยังคงความเงียบสงบ น้ำทะเลใสสะอาด และเป็นที่ตั้งของสวนนงนุช พัทยา รวมถึงหาดสวยๆ อีกมากมาย',
+                landmarkIds: ['nongnooch']
+            }
+        };
+
+        // ---------------------------------------------------------
+        // 3. TRIP PLANNER ITINERARY DATA
+        // ---------------------------------------------------------
+        const tripsData = {
+            '1day': {
+                title: 'One Day Trip: บางแสน - เขาสามมุข (สายชิล & ถ่ายรูป)',
+                budget: 'งบประมาณเฉลี่ย 800 - 1,200 บาท/คน',
+                steps: [
+                    { time: '09:00', place: 'แกรนด์แคนยอน คีรี', desc: 'แวะถ่ายรูปมุมสูงกับบ่อน้ำสีมรกตและภูเขาหิมะช่วงเช้า แสงกำลังสวยไม่ร้อนมาก', tag: 'ถ่ายรูป' },
+                    { time: '12:00', place: 'ตลาดปลาบางแสน', desc: 'ฝากท้องมื้อเที่ยงกับอาหารทะเลสด ซาชิมิ และเดินถ่ายรูปมุมสไตล์ญี่ปุ่น', tag: 'ของกิน' },
+                    { time: '15:00', place: 'หาดบางแสน & คาเฟ่ริมหาด', desc: 'นั่งพักผ่อนจิบกาแฟริมทะเล หรือเช่าเตียงผ้าใบรับลมทะเลช่วงบ่าย', tag: 'พักผ่อน' },
+                    { time: '18:00', place: 'จุดชมวิวเขาสามมุข', desc: 'ปิดท้ายวันด้วยการชมพระอาทิตย์ตกดินที่ป้าย BANGSAEN ก่อนเดินทางกลับ กทม.', tag: 'ไฮไลต์' }
+                ]
+            },
+            '2day': {
+                title: '2 วัน 1 คืน: พัทยา - เกาะล้าน (ครบทั้งวัฒนธรรมและทะเลใส)',
+                budget: 'งบประมาณเฉลี่ย 2,500 - 3,500 บาท/คน',
+                steps: [
+                    { time: 'DAY 1 • 09:00', place: 'ปราสาทสัจธรรม พัทยาเหนือ', desc: 'เดินชมงานแกะสลักไม้สุดอลังการริมทะเล พร้อมฟังบรรยายประวัติศาสตร์', tag: 'Day 1' },
+                    { time: 'DAY 1 • 12:00', place: 'ข้ามเรือสู่เกาะล้าน (ท่าเรือแหลมบาลีฮาย)', desc: 'นั่งเรือ 30-45 นาที เช็คอินที่พัก เช่ามอเตอร์ไซค์ขี่เที่ยวรอบเกาะ', tag: 'Day 1' },
+                    { time: 'DAY 1 • 15:00', place: 'เล่นน้ำหาดเทียน & จุดชมวิวกังหันลม', desc: 'พายเรือคายัคใส ถ่ายรูปกับฝูงห่าน แล้วขึ้นจุดชมวิวดูพระอาทิตย์ตก', tag: 'Day 1' },
+                    { time: 'DAY 2 • 12:00', place: 'กลับฝั่งพัทยา แวะสวนนงนุช หรือ สวนสัตว์เปิดเขาเขียว', desc: 'เลือกแวะเที่ยวก่อนกลับกรุงเทพฯ ชมหุบเขาไดโนเสาร์หรือแวะหาน้องหมูเด้ง', tag: 'Day 2' }
+                ]
+            }
+        };
+
+        // ---------------------------------------------------------
+        // 4. APPLICATION STATE
+        // ---------------------------------------------------------
+        const categories = ['ทั้งหมด', 'ทะเล & เกาะ', 'แลนด์มาร์คถ่ายรูป', 'ธรรมชาติ & สวนสัตว์', 'วัฒนธรรม & สถาปัตยกรรม'];
+        let activeCategory = 'ทั้งหมด';
+        let searchQuery = '';
+        let activeZone = 'bangsaen';
+        let currentModalLandmarkId = null;
+        let savedTripIds = ['bangsaen', 'khaokheow']; // Pre-populated with 2 sample places for demo
+
+        // ---------------------------------------------------------
+        // 5. TOOLBAR CONTROLS (VIEWPORT & ANNOTATIONS)
+        // ---------------------------------------------------------
+        function setViewport(mode) {
+            const canvas = document.getElementById('wireframe-canvas');
+            const btnDesktop = document.getElementById('btn-desktop');
+            const btnMobile = document.getElementById('btn-mobile');
+            const mobileNotch = document.getElementById('mobile-notch');
+
+            if (mode === 'mobile') {
+                canvas.classList.add('is-mobile-view');
+                mobileNotch.classList.remove('hidden');
+                mobileNotch.classList.add('flex');
+
+                btnMobile.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all bg-slate-100 text-slate-900 shadow-sm';
+                btnDesktop.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all text-slate-300 hover:text-white';
+            } else {
+                canvas.classList.remove('is-mobile-view');
+                mobileNotch.classList.add('hidden');
+                mobileNotch.classList.remove('flex');
+
+                btnDesktop.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all bg-slate-100 text-slate-900 shadow-sm';
+                btnMobile.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all text-slate-300 hover:text-white';
+            }
+        }
+
+        function toggleAnnotations(isChecked) {
+            const canvas = document.getElementById('wireframe-canvas');
+            if (isChecked) {
+                canvas.classList.add('show-annotations');
+                showToast('เปิดแสดงหมายเหตุอธิบายแนวคิด UX (6 จุด)');
+            } else {
+                canvas.classList.remove('show-annotations');
+            }
+        }
+
+        function toggleMobileNav() {
+            const drawer = document.getElementById('mobile-nav-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        function focusSearch() {
+            const input = document.getElementById('search-input');
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => input.focus(), 350);
+        }
+
+        // ---------------------------------------------------------
+        // 6. CATEGORY PILLS & LANDMARKS RENDERING
+        // ---------------------------------------------------------
+        function renderCategoryPills() {
+            const container = document.getElementById('category-pills');
+            container.innerHTML = categories.map(cat => {
+                const isActive = cat === activeCategory;
+                return `
+                    <button onclick="selectCategory('${cat}')"
+                        class="px-3.5 py-2 rounded-full text-xs font-medium border transition-all ${
+                            isActive
+                            ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                            : 'bg-white text-slate-600 border-slate-300 hover:border-slate-500 hover:text-slate-900'
+                        }">
+                        ${cat}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectCategory(cat) {
+            activeCategory = cat;
+            renderCategoryPills();
+            renderLandmarks();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val.trim().toLowerCase();
+            const clearBtn = document.getElementById('clear-search-btn');
+            clearBtn.classList.toggle('hidden', searchQuery.length === 0);
+            renderLandmarks();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            handleSearch('');
+        }
+
+        function resetFilters() {
+            activeCategory = 'ทั้งหมด';
+            clearSearch();
+            renderCategoryPills();
+            renderLandmarks();
+        }
+
+        function renderLandmarks() {
+            const grid = document.getElementById('landmarks-grid');
+            const emptyState = document.getElementById('landmarks-empty');
+            const countLabel = document.getElementById('landmark-result-count');
+
+            const filtered = landmarksData.filter(item => {
+                const matchCat = activeCategory === 'ทั้งหมด' || item.category === activeCategory;
+                const matchSearch = !searchQuery ||
+                    item.name.toLowerCase().includes(searchQuery) ||
+                    item.enName.toLowerCase().includes(searchQuery) ||
+                    item.district.toLowerCase().includes(searchQuery) ||
+                    item.highlight.toLowerCase().includes(searchQuery);
+                return matchCat && matchSearch;
+            });
+
+            countLabel.textContent = `แสดง ${filtered.length} จาก ${landmarksData.length} สถานที่ยอดนิยม${activeCategory !== 'ทั้งหมด' ? ` (หมวด: ${activeCategory})` : ''}`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = filtered.map(item => {
+                const isSaved = savedTripIds.includes(item.id);
+                return `
+                    <article onclick="openLandmarkModal('${item.id}')"
+                        class="group cursor-pointer rounded-xl border border-slate-300 bg-white hover:border-slate-700 hover:shadow-md transition-all flex flex-col overflow-hidden">
+                        <!-- Wireframe Image Box (4:3) -->
+                        <div class="wf-img-box aspect-[4/3] w-full flex flex-col items-center justify-center p-3 border-t-0 border-x-0">
+                            <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-white/95 border border-slate-300 text-[10px] font-medium text-slate-700">
+                                ${item.category}
+                            </span>
+                            ${isSaved ? `<span class="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-slate-800 text-white font-mono text-[9px]">SAVED</span>` : ''}
+                            <div class="wf-img-label px-2.5 py-1 rounded text-center">
+                                <p class="font-mono text-[10px] text-slate-600 font-medium">IMG 4:3</p>
+                                <p class="font-mono text-[9px] text-slate-400">400x300px</p>
+                            </div>
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="p-4 flex-1 flex flex-col justify-between gap-3">
+                            <div>
+                                <div class="flex items-start justify-between gap-2">
+                                    <h4 class="font-bold text-slate-900 text-base leading-snug group-hover:underline">
+                                        ${item.name}
+                                    </h4>
+                                    <span class="shrink-0 text-xs font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                                        ★ ${item.rating}
+                                    </span>
+                                </div>
+                                <p class="text-[11px] font-mono text-slate-500 mt-0.5">
+                                    📍 ${item.district}
+                                </p>
+                                <p class="text-xs text-slate-600 mt-2 line-clamp-2 leading-relaxed">
+                                    ${item.highlight}
+                                </p>
+                            </div>
+
+                            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-800">
+                                <span class="font-mono text-[10px] text-slate-400">DETAIL MODAL</span>
+                                <span class="group-hover:translate-x-0.5 transition-transform">ดูรายละเอียด →</span>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // ---------------------------------------------------------
+        // 7. INTERACTIVE ZONE MAP LOGIC
+        // ---------------------------------------------------------
+        function selectZone(zoneKey) {
+            activeZone = zoneKey;
+            const zone = zonesData[zoneKey];
+
+            // Update Pin Styles
+            document.querySelectorAll('.zone-pin').forEach(pin => {
+                pin.className = 'zone-pin absolute -translate-x-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm transition-all flex items-center gap-1.5 bg-white text-slate-700 border-slate-400 hover:border-slate-800';
+            });
+
+            // Re-apply specific positions for each pin
+            document.getElementById('pin-bangsaen').classList.add('top-[18%]', 'left-[38%]');
+            document.getElementById('pin-sriracha').classList.add('top-[43%]', 'left-[62%]');
+            document.getElementById('pin-pattaya').classList.add('top-[65%]', 'left-[44%]');
+            document.getElementById('pin-sattahip').classList.add('top-[86%]', 'left-[63%]');
+
+            const activePin = document.getElementById(`pin-${zoneKey}`);
+            if (activePin) {
+                activePin.classList.remove('bg-white', 'text-slate-700', 'border-slate-400');
+                activePin.classList.add('bg-slate-900', 'text-white', 'border-slate-900', 'scale-105', 'z-10');
+            }
+
+            // Render Right Panel
+            const panel = document.getElementById('zone-detail-panel');
+            const zoneLandmarks = zone.landmarkIds.map(id => landmarksData.find(l => l.id === id)).filter(Boolean);
+
+            panel.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold">SELECTED ZONE</span>
+                            <h4 class="text-lg font-bold text-slate-900 mt-1.5">${zone.title}</h4>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-white border border-slate-200 flex items-center gap-2.5 text-xs">
+                        <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span><strong>เวลาเดินทาง:</strong> ${zone.travelTime}</span>
+                    </div>
+
+                    <p class="text-xs text-slate-600 leading-relaxed">${zone.desc}</p>
+
+                    <div class="flex flex-wrap gap-1.5">
+                        ${zone.vibe.map(v => `<span class="px-2 py-1 rounded bg-white border border-slate-200 text-[11px] text-slate-600">#${v}</span>`).join('')}
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-200">
+                        <p class="text-xs font-bold text-slate-800 mb-2">แลนด์มาร์คแนะนำในโซนนี้:</p>
+                        <div class="space-y-2">
+                            ${zoneLandmarks.map(lm => `
+                                <button onclick="openLandmarkModal('${lm.id}')"
+                                    class="w-full text-left p-2.5 rounded-lg bg-white border border-slate-200 hover:border-slate-700 transition flex items-center justify-between gap-2">
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-900">${lm.name}</p>
+                                        <p class="text-[10px] text-slate-500">${lm.category} • ★ ${lm.rating}</p>
+                                    </div>
+                                    <span class="text-xs text-slate-400">ดูข้อมูล →</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ---------------------------------------------------------
+        // 8. TRIP PLANNER TABS LOGIC
+        // ---------------------------------------------------------
+        function switchTripTab(tabKey) {
+            const btn1 = document.getElementById('tab-1day');
+            const btn2 = document.getElementById('tab-2day');
+
+            if (tabKey === '1day') {
+                btn1.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all bg-slate-800 text-white shadow-sm';
+                btn2.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900';
+            } else {
+                btn2.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all bg-slate-800 text-white shadow-sm';
+                btn1.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900';
+            }
+
+            const trip = tripsData[tabKey];
+            const container = document.getElementById('trip-timeline-content');
+
+            container.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
+                    <h4 class="font-bold text-slate-900 text-sm sm:text-base">${trip.title}</h4>
+                    <span class="font-mono text-xs px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-slate-600">${trip.budget}</span>
+                </div>
+                <div class="relative pl-6 sm:pl-8 space-y-5 before:content-[''] before:absolute before:left-2.5 sm:before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-300 before:border-l before:border-dashed">
+                    ${trip.steps.map(step => `
+                        <div class="relative">
+                            <!-- Timeline Dot -->
+                            <div class="absolute -left-[22px] sm:-left-[26px] top-1.5 w-3.5 h-3.5 rounded-full bg-white border-2 border-slate-800"></div>
+                            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-start gap-3">
+                                    <div class="wf-img-box hidden sm:flex w-16 h-12 rounded-lg shrink-0 items-center justify-center">
+                                        <span class="font-mono text-[8px] text-slate-500 bg-white/80 px-1 rounded">IMG</span>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-mono text-xs font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-300">${step.time}</span>
+                                            <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-200 text-slate-700">${step.tag}</span>
+                                        </div>
+                                        <h5 class="font-bold text-slate-900 text-sm mt-1.5">${step.place}</h5>
+                                        <p class="text-xs text-slate-600 mt-0.5">${step.desc}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // ---------------------------------------------------------
+        // 9. LANDMARK DETAIL MODAL & MY TRIP PLANNER LOGIC
+        // ---------------------------------------------------------
+        function openLandmarkModal(id) {
+            const item = landmarksData.find(l => l.id === id);
+            if (!item) return;
+
+            currentModalLandmarkId = id;
+            document.getElementById('modal-category').textContent = item.category;
+            document.getElementById('modal-img-caption').textContent = `ภาพบรรยากาศ: ${item.name} (16:9)`;
+            document.getElementById('modal-title').textContent = item.name;
+            document.getElementById('modal-subtitle').textContent = `${item.enName} • ${item.district}`;
+            document.getElementById('modal-rating').textContent = item.rating;
+            document.getElementById('modal-hours').textContent = item.hours;
+            document.getElementById('modal-fee').textContent = item.fee;
+            document.getElementById('modal-location').textContent = item.location;
+
+            document.getElementById('modal-highlights').innerHTML = item.highlights
+                .map(h => `<li>${h}</li>`).join('');
+
+            updateModalTripButton();
+
+            const modal = document.getElementById('landmark-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function updateModalTripButton() {
+            const btn = document.getElementById('modal-trip-btn');
+            const isSaved = savedTripIds.includes(currentModalLandmarkId);
+            if (isSaved) {
+                btn.innerHTML = '<span>✓ อยู่ในทริปของฉันแล้ว (คลิกเพื่อลบ)</span>';
+                btn.className = 'flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-slate-200 text-slate-800 border border-slate-400 text-sm font-semibold hover:bg-slate-300 transition flex items-center justify-center gap-2';
+            } else {
+                btn.innerHTML = '<span>+ เพิ่มลงทริปของฉัน</span>';
+                btn.className = 'flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition flex items-center justify-center gap-2';
+            }
+        }
+
+        function toggleTripFromModal() {
+            if (!currentModalLandmarkId) return;
+            const item = landmarksData.find(l => l.id === currentModalLandmarkId);
+            const idx = savedTripIds.indexOf(currentModalLandmarkId);
+
+            if (idx === -1) {
+                savedTripIds.push(currentModalLandmarkId);
+                showToast(`เพิ่ม "${item.name}" ลงในทริปของคุณแล้ว`);
+            } else {
+                savedTripIds.splice(idx, 1);
+                showToast(`นำ "${item.name}" ออกจากทริปแล้ว`);
+            }
+
+            updateTripCountBadge();
+            updateModalTripButton();
+            renderLandmarks();
+        }
+
+        function openTripDrawer() {
+            renderTripList();
+            const modal = document.getElementById('trip-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function renderTripList() {
+            const body = document.getElementById('trip-list-body');
+            if (savedTripIds.length === 0) {
+                body.innerHTML = `
+                    <div class="py-10 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
+                        <p class="text-sm text-slate-500">ยังไม่มีสถานที่ในทริปของคุณ</p>
+                        <p class="text-xs text-slate-400 mt-1">คลิกเลือกการ์ดแลนด์มาร์คเพื่อเพิ่มลงทริปได้เลย</p>
+                    </div>
+                `;
+                return;
+            }
+
+            body.innerHTML = savedTripIds.map((id, index) => {
+                const item = landmarksData.find(l => l.id === id);
+                if (!item) return '';
+                return `
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-slate-800 text-white font-mono text-xs flex items-center justify-center shrink-0">${index + 1}</span>
+                            <div>
+                                <p class="text-sm font-bold text-slate-900">${item.name}</p>
+                                <p class="text-[11px] text-slate-500">${item.district} • ${item.hours}</p>
+                            </div>
+                        </div>
+                        <button onclick="removeTripItem('${item.id}')" class="px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-xs text-slate-600 hover:bg-slate-200">
+                            ลบ
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeTripItem(id) {
+            savedTripIds = savedTripIds.filter(item => item !== id);
+            updateTripCountBadge();
+            renderTripList();
+            renderLandmarks();
+        }
+
+        function updateTripCountBadge() {
+            document.getElementById('trip-count-badge').textContent = savedTripIds.length;
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function closeModalOnBackdrop(event, modalId) {
+            if (event.target.id === modalId) {
+                closeModal(modalId);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 10. TOAST HELPER
+        // ---------------------------------------------------------
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 2600);
+        }
+
+        // ---------------------------------------------------------
+        // 11. INITIALIZE WIREFRAME ON LOAD
+        // ---------------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategoryPills();
+            renderLandmarks();
+            selectZone('bangsaen');
+            switchTripTab('1day');
+            updateTripCountBadge();
+        });
+    </script>
+</body>
+</html>
